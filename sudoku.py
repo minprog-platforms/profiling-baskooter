@@ -19,10 +19,20 @@ class Sudoku:
 
     def place(self, value: int, x: int, y: int) -> None:
         """Place value at x,y."""
+        # row = self._grid[y]
+        # self._grid[y] = list(self._grid[y])
+        # self._grid[y][x] = str(value)
+        # self._grid[y] = ''.join(self._grid[y])
         row = self._grid[y]
-        self._grid[y] = list(self._grid[y])
-        self._grid[y][x] = str(value)
-        self._grid[y] = ''.join(self._grid[y])
+        new_row = ""
+
+        for i in range(9):
+            if i == x:
+                new_row += str(value)
+            else:
+                new_row += row[i]
+
+        self._grid[y] = new_row
 
     def unplace(self, x: int, y: int) -> None:
         """Remove (unplace) a number at x,y."""
@@ -96,8 +106,7 @@ class Sudoku:
         3 4 5
         6 7 8
         """
-        values = []
-        test = []
+        values: list[int] = []
 
         x_start = (i % 3) * 3
         y_start = (i // 3) * 3
