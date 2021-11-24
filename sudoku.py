@@ -16,18 +16,13 @@ class Sudoku:
 
             self._grid.append(row)
 
+
     def place(self, value: int, x: int, y: int) -> None:
         """Place value at x,y."""
         row = self._grid[y]
-        new_row = ""
-
-        for i in range(9):
-            if i == x:
-                new_row += str(value)
-            else:
-                new_row += row[i]
-
-        self._grid[y] = new_row
+        self._grid[y] = list(self._grid[y])
+        self._grid[y][x] = str(value)
+        self._grid[y] = ''.join(self._grid[y])
 
     def unplace(self, x: int, y: int) -> None:
         """Remove (unplace) a number at x,y."""
@@ -37,13 +32,9 @@ class Sudoku:
 
     def value_at(self, x: int, y: int) -> int:
         """Returns the value at x,y."""
-        value = -1
 
-        for i in range(9):
-            for j in range(9):
-                if i == x and j == y:
-                    row = self._grid[y]
-                    value = int(row[x])
+        row = self._grid[y]
+        value = int(row[x])
 
         return value
 
@@ -63,7 +54,7 @@ class Sudoku:
 
         # Get the index of the block based from x,y
         block_index = (y // 3) * 3 + x // 3
-
+        
         # Remove all values from the block
         for value in self.block_values(block_index):
             if value in options:
@@ -76,23 +67,17 @@ class Sudoku:
         Returns the next index (x,y) that is empty (value 0).
         If there is no empty spot, returns (-1,-1)
         """
-        next_x, next_y = -1, -1
-
         for y in range(9):
-            for x in range(9):
-                if self.value_at(x, y) == 0 and next_x == -1 and next_y == -1:
-                    next_x, next_y = x, y
-
-        return next_x, next_y
-
+            if 0 in list(map(int, self._grid[y])):
+                return self._grid[y].find('0'), y
+        
+        return -1, -1
+        
     def row_values(self, i: int) -> Iterable[int]:
         """Returns all values at i-th row."""
         values = []
 
-        for j in range(9):
-            values.append(self.value_at(j, i))
-
-        return values
+        return list(map(int, self._grid[i]))
 
     def column_values(self, i: int) -> Iterable[int]:
         """Returns all values at i-th column."""
@@ -112,6 +97,7 @@ class Sudoku:
         6 7 8
         """
         values = []
+        test = []
 
         x_start = (i % 3) * 3
         y_start = (i // 3) * 3
@@ -119,7 +105,6 @@ class Sudoku:
         for x in range(x_start, x_start + 3):
             for y in range(y_start, y_start + 3):
                 values.append(self.value_at(x, y))
-
         return values
 
     def is_solved(self) -> bool:
@@ -129,20 +114,11 @@ class Sudoku:
         """
         values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-        result = True
-
         for i in range(9):
-            for value in values:
-                if value not in self.column_values(i):
-                    result = False
+            if not all(elem in self.row_values(i) for elem in values):
+                return False
 
-                if value not in self.row_values(i):
-                    result = False
-
-                if value not in self.block_values(i):
-                    result = False
-
-        return result
+        return True
 
     def __str__(self) -> str:
         representation = ""
